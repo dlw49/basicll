@@ -1,0 +1,81 @@
+Here is a header:
+
+class Course
+{
+	public:
+		Course(std::string courseData = "CS 1 Bar,Foo 0 0 1,2,3 1:00-1:15");
+   ->	friend std::ostream& operator<< (std::ostream& os, const Course& course);
+		bool MatchesPrefixSearch (std::string prefix);
+		bool MatchesInstructorSearch (std::string name);
+		bool Enroll ();
+
+	private:
+		std::string prefix;
+		int courseNumber;
+		Instructor instructor;
+		int maxSeats;
+		int seatsAvailable;
+		ClassTime meetingTime;
+};
+
+Note the declaration of the overloaded operator-friend std::ostream& ...
+
+Here it is how the logic is defined in the course.cpp file
+
+std::ostream& operator<< (std::ostream& os, const Course& course)
+{
+	os << course.prefix << " " << course.courseNumber << "\n\t";
+	os << course.seatsAvailable << (course.seatsAvailable == 1 ? " seat" : " seats") 
+      << " remaining of " << course.maxSeats << ".\n\t";
+	os << "Instructor: " << course.instructor << ".\n\t";
+	os << course.meetingTime;
+	return os;
+}
+
+Here is a test using the overloaded operator:
+
+Course cop3530("COP 3530 Turing,Alan 30 1 1,2,3 12:15-13:30");
+	printedCourse.str("");
+	printedCourse << cop3530;
+	REQUIRE(printedCourse.str() == "COP 3530\n\t1 seat remaining of 30.\n\tInstructor: Alan Turing.\n
+                                   \tClass is on Monday & Tuesday & Wednesday from 12:15 to 13:30");
+
+
+An example from the test cases for project 2:
+	std::ostringstream os;
+	bool canClick;
+	bool isFlagged;
+
+	Board b("fourXfour.in");
+
+	// testing clicks outside the board
+	canClick = b.Click(-1, 0);
+	REQUIRE(!canClick);
+	canClick = b.Click(4, 0);
+	REQUIRE(!canClick);
+	canClick = b.Click(0, -1);
+	REQUIRE(!canClick);
+	canClick = b.Click(0, 4);
+	REQUIRE(!canClick);
+
+	isFlagged = b.Flag(0, 0);
+	REQUIRE(isFlagged);
+
+	canClick = b.Click(0, 0);
+	REQUIRE(!canClick);
+
+	b.Flag(0, 0);
+	canClick = b.Click(0, 0);
+	REQUIRE(canClick);
+
+	os << b;
+
+	REQUIRE(TOP_LEFT_CLICKED == os.str());
+
+	std::ostringstream bottomRightClickedStream;
+	b.Click(3, 2);
+	bottomRightClickedStream << b;
+	REQUIRE(BOTTOM_RIGHT_NUMBER_CLICKED == bottomRightClickedStream.str());
+
+You'll need a class Board that uses the 2D Int Array he showed us.
+
